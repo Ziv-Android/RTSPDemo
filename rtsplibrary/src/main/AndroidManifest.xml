@@ -13,11 +13,11 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
+<!--    android:theme="@style/Theme.AppCompat.Dialog"-->
     <application>
         <activity
             android:name="com.ziv.rtsplibrary.utils.ui.PermissionActivity"
             android:launchMode="singleInstance"
-            android:theme="@style/Theme.AppCompat.Dialog"
             android:exported="true" >
             <intent-filter>
                 <action android:name="com.ziv.rtsplibrary.PermissionActivity" />

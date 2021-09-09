@@ -36,4 +36,16 @@ public class ScreenInputStream extends InputStream {
     public int read() throws IOException {
         return 0;
     }
+
+    @Override
+    public int available() {
+        if (mBuffer != null)
+            return data.data.length - mBuffer.position();
+        else
+            return 0;
+    }
+
+    public long getLastts(){
+        return ts;
+    }
 }

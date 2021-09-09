@@ -1,6 +1,5 @@
 package com.ziv.rtsplibrary.utils.ui
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
@@ -36,19 +35,19 @@ class PermissionActivity : AppCompatActivity(), H264DataCollector {
         setContentView(R.layout.activity_permission)
 
         LogUtil.d(TAG + "onCreate")
-
         mMediaProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         LogUtil.d(TAG + "onCreate finish.")
     }
 
-    @SuppressLint("MissingSuperCall")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
         LogUtil.d(TAG + "requestCode: " + requestCode + " ,resultCode: " + resultCode)
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             try {
                 val mediaProjection = mMediaProjectionManager?.getMediaProjection(resultCode, data!!)
                 mScreenRecord = ScreenRecordThread(this, mediaProjection)
                 mScreenRecord?.start()
+                //finish()
             } catch (e: Exception) {
                 LogUtil.e("${e.message}")
             }
@@ -96,7 +95,7 @@ class PermissionActivity : AppCompatActivity(), H264DataCollector {
 
     fun onStart(view: View) {
         startActivityForResult(mMediaProjectionManager?.createScreenCaptureIntent(), REQUEST_CODE)
+//        startService(Intent(this, RtspServer::class.java))
         bindService(Intent(this, RtspServer::class.java), mRtspServiceConnection, BIND_AUTO_CREATE)
-        finish()
     }
 }

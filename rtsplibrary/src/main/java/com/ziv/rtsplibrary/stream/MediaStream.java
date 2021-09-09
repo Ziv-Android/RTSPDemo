@@ -28,9 +28,12 @@ import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
+import com.ziv.rtsplibrary.stream.audio.AudioQuality;
 import com.ziv.rtsplibrary.stream.audio.AudioStream;
 import com.ziv.rtsplibrary.rtsp.rtp.AbstractPacketizer;
+import com.ziv.rtsplibrary.stream.video.VideoQuality;
 import com.ziv.rtsplibrary.stream.video.VideoStream;
+import com.ziv.rtsplibrary.stream.video.camera.CameraStream;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -268,8 +271,8 @@ public abstract class MediaStream implements Stream {
 
     /**
      * Configures the stream with the settings supplied with
-     * {@link VideoStream#setVideoQuality(com.ziv.streaming.video.VideoQuality)}
-     * for a {@link VideoStream} and {@link AudioStream#setAudioQuality(com.ziv.streaming.audio.AudioQuality)}
+     * {@link CameraStream#setVideoQuality(VideoQuality)}
+     * for a {@link VideoStream} and {@link AudioStream#setAudioQuality(AudioQuality)}
      * for a {@link AudioStream}.
      */
     public synchronized void configure() throws IllegalStateException, IOException {
@@ -342,7 +345,7 @@ public abstract class MediaStream implements Stream {
     public abstract String getSessionDescription();
 
     /**
-     * Returns the SSRC of the underlying {@link com.ziv.streaming.rtp.RtpSocket}.
+     * Returns the SSRC of the underlying {@link com.ziv.rtsplibrary.rtsp.rtp.RtpSocket}.
      *
      * @return the SSRC of the stream
      */

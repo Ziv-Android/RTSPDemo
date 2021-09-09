@@ -23,6 +23,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 
+import com.ziv.rtsplibrary.stream.MediaStream;
 import com.ziv.rtsplibrary.stream.Stream;
 import com.ziv.rtsplibrary.stream.audio.AudioQuality;
 import com.ziv.rtsplibrary.stream.audio.AudioStream;
@@ -34,13 +35,14 @@ import com.ziv.rtsplibrary.gl.SurfaceView;
 import com.ziv.rtsplibrary.rtsp.RtspClient;
 import com.ziv.rtsplibrary.stream.video.VideoQuality;
 import com.ziv.rtsplibrary.stream.video.VideoStream;
+import com.ziv.rtsplibrary.stream.video.camera.CameraStream;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 /**
- * You should instantiate this class with the {@link com.ziv.streaming.SessionBuilder}.<br />
+ * You should instantiate this class with the {@link SessionBuilder}.<br />
  * This is the class you will want to use to stream audio and or video to some peer using RTP.<br />
  * <p>
  * It holds a {@link VideoStream} and a {@link AudioStream} together and provides
@@ -113,7 +115,8 @@ public class Session {
     private long mTimestamp;
 
     private AudioStream mAudioStream = null;
-    private VideoStream mVideoStream = null;
+    private MediaStream mVideoStream = null;
+    private CameraStream mCameraStream = null;
 
     private Callback mCallback;
     private Handler mMainHandler;
@@ -186,7 +189,7 @@ public class Session {
     }
 
     /**
-     * You probably don't need to use that directly, use the {@link com.ziv.streaming.SessionBuilder}.
+     * You probably don't need to use that directly, use the {@link SessionBuilder}.
      */
     void addAudioTrack(AudioStream track) {
         removeAudioTrack();
@@ -194,15 +197,15 @@ public class Session {
     }
 
     /**
-     * You probably don't need to use that directly, use the {@link com.ziv.streaming.SessionBuilder}.
+     * You probably don't need to use that directly, use the {@link SessionBuilder}.
      */
-    void addVideoTrack(VideoStream track) {
+    void addVideoTrack(MediaStream track) {
         removeVideoTrack();
         mVideoStream = track;
     }
 
     /**
-     * You probably don't need to use that directly, use the {@link com.ziv.streaming.SessionBuilder}.
+     * You probably don't need to use that directly, use the {@link SessionBuilder}.
      */
     void removeAudioTrack() {
         if (mAudioStream != null) {
@@ -212,13 +215,20 @@ public class Session {
     }
 
     /**
-     * You probably don't need to use that directly, use the {@link com.ziv.streaming.SessionBuilder}.
+     * You probably don't need to use that directly, use the {@link SessionBuilder}.
      */
-    void removeVideoTrack() {
-        if (mVideoStream != null) {
-            mVideoStream.stopPreview();
-            mVideoStream = null;
+    void removeCameraTrack() {
+        if (mCameraStream != null) {
+            mCameraStream.stopPreview();
+            mCameraStream = null;
         }
+    }
+
+    /**
+     * You probably don't need to use that directly, use the {@link SessionBuilder}.
+     */
+    private void removeVideoTrack() {
+
     }
 
     /**
@@ -229,9 +239,9 @@ public class Session {
     }
 
     /**
-     * Returns the underlying {@link VideoStream} used by the {@link Session}.
+     * Returns the underlying {@link MediaStream} used by the {@link Session}.
      */
-    public VideoStream getVideoTrack() {
+    public MediaStream getVideoTrack() {
         return mVideoStream;
     }
 
@@ -281,23 +291,23 @@ public class Session {
      *
      * @param quality Quality of the stream
      */
-    public void setVideoQuality(VideoQuality quality) {
-        if (mVideoStream != null) {
-            mVideoStream.setVideoQuality(quality);
+    public void setCameraQuality(VideoQuality quality) {
+        if (mCameraStream != null) {
+            mCameraStream.setVideoQuality(quality);
         }
     }
 
     /**
      * Sets a Surface to show a preview of recorded media (video). <br />
      * You can call this method at any time and changes will take
-     * effect next time you call {@link #start()} or {@link #startPreview()}.
+     * effect next time you call {@link #start()} or {@link #startCameraPreview()}.
      */
-    public void setSurfaceView(final SurfaceView view) {
+    public void setCameraSurfaceView(final SurfaceView view) {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                if (mVideoStream != null) {
-                    mVideoStream.setSurfaceView(view);
+                if (mCameraStream != null) {
+                    mCameraStream.setSurfaceView(view);
                 }
             }
         });
@@ -310,9 +320,9 @@ public class Session {
      *
      * @param orientation The orientation of the preview
      */
-    public void setPreviewOrientation(int orientation) {
-        if (mVideoStream != null) {
-            mVideoStream.setPreviewOrientation(orientation);
+    public void setCameraPreviewOrientation(int orientation) {
+        if (mCameraStream != null) {
+            mCameraStream.setPreviewOrientation(orientation);
         }
     }
 
@@ -580,19 +590,19 @@ public class Session {
 
     /**
      * Asynchronously starts the camera preview. <br />
-     * You should of course pass a {@link SurfaceView} to {@link #setSurfaceView(SurfaceView)}
+     * You should of course pass a {@link SurfaceView} to {@link #setCameraSurfaceView(SurfaceView)}
      * before calling this method. Otherwise, the {@link Callback#onSessionError(int, int, Exception)}
      * callback will be called with {@link #ERROR_INVALID_SURFACE}.
      */
-    public void startPreview() {
+    public void startCameraPreview() {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                if (mVideoStream != null) {
+                if (mCameraStream != null) {
                     try {
-                        mVideoStream.startPreview();
+                        mCameraStream.startPreview();
                         postPreviewStarted();
-                        mVideoStream.configure();
+                        mCameraStream.configure();
                     } catch (CameraInUseException e) {
                         postError(ERROR_CAMERA_ALREADY_IN_USE, STREAM_VIDEO, e);
                     } catch (ConfNotSupportedException e) {
@@ -614,12 +624,12 @@ public class Session {
     /**
      * Asynchronously stops the camera preview.
      */
-    public void stopPreview() {
+    public void stopCameraPreview() {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                if (mVideoStream != null) {
-                    mVideoStream.stopPreview();
+                if (mCameraStream != null) {
+                    mCameraStream.stopPreview();
                 }
             }
         });
@@ -627,7 +637,7 @@ public class Session {
 
     /**
      * Switch between the front facing and the back facing camera of the phone. <br />
-     * If {@link #startPreview()} has been called, the preview will be  briefly interrupted. <br />
+     * If {@link #startCameraPreview()} has been called, the preview will be  briefly interrupted. <br />
      * If {@link #start()} has been called, the stream will be  briefly interrupted.<br />
      * To find out which camera is currently selected, use {@link #getCamera()}
      **/
@@ -635,9 +645,9 @@ public class Session {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                if (mVideoStream != null) {
+                if (mCameraStream != null) {
                     try {
-                        mVideoStream.switchCamera();
+                        mCameraStream.switchCamera();
                         postPreviewStarted();
                     } catch (CameraInUseException e) {
                         postError(ERROR_CAMERA_ALREADY_IN_USE, STREAM_VIDEO, e);
@@ -661,22 +671,22 @@ public class Session {
      * {@link CameraInfo#CAMERA_FACING_FRONT}.
      */
     public int getCamera() {
-        return mVideoStream != null ? mVideoStream.getCamera() : 0;
+        return mCameraStream != null ? mCameraStream.getCamera() : 0;
 
     }
 
     /**
      * Toggles the LED of the phone if it has one.
      * You can get the current state of the flash with
-     * {@link Session#getVideoTrack()} and {@link VideoStream#getFlashState()}.
+     * {@link Session#getVideoTrack()} and {@link CameraStream#getFlashState()}.
      **/
     public void toggleFlash() {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                if (mVideoStream != null) {
+                if (mCameraStream != null) {
                     try {
-                        mVideoStream.toggleFlash();
+                        mCameraStream.toggleFlash();
                     } catch (RuntimeException e) {
                         postError(ERROR_CAMERA_HAS_NO_FLASH, STREAM_VIDEO, e);
                     }
@@ -690,6 +700,7 @@ public class Session {
      */
     public void release() {
         removeAudioTrack();
+        removeCameraTrack();
         removeVideoTrack();
         mHandler.getLooper().quit();
     }

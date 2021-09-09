@@ -31,6 +31,7 @@ import android.util.Log;
 
 import com.ziv.rtsplibrary.Session;
 import com.ziv.rtsplibrary.SessionBuilder;
+import com.ziv.rtsplibrary.config.Constant;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -67,7 +68,7 @@ public class RtspServer extends Service {
     /**
      * Port used by default.
      */
-    public static final int DEFAULT_RTSP_PORT = 8086;
+    public static final int DEFAULT_RTSP_PORT = Constant.DEFAULT_RTSP_PORT;
 
     /**
      * Port already in use.

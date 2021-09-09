@@ -22,7 +22,8 @@ import static com.ziv.rtsplibrary.SessionBuilder.AUDIO_AAC;
 import static com.ziv.rtsplibrary.SessionBuilder.AUDIO_AMRNB;
 import static com.ziv.rtsplibrary.SessionBuilder.AUDIO_NONE;
 import static com.ziv.rtsplibrary.SessionBuilder.VIDEO_H263;
-import static com.ziv.rtsplibrary.SessionBuilder.VIDEO_H264;
+import static com.ziv.rtsplibrary.SessionBuilder.VIDEO_H264_CAMERA;
+import static com.ziv.rtsplibrary.SessionBuilder.VIDEO_H264_SCREEN;
 import static com.ziv.rtsplibrary.SessionBuilder.VIDEO_NONE;
 
 import android.content.ContentValues;
@@ -172,7 +173,7 @@ public class UriParser {
                 // H.264
                 else if (paramName.equalsIgnoreCase("h264")) {
                     VideoQuality quality = VideoQuality.parseQuality(paramValue);
-                    builder.setVideoQuality(quality).setVideoEncoder(VIDEO_H264);
+                    builder.setVideoQuality(quality).setVideoEncoder(VIDEO_H264_SCREEN);
                 }
 
                 // H.263

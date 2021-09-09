@@ -27,10 +27,10 @@ import com.ziv.rtsplibrary.stream.audio.AMRNBStream;
 import com.ziv.rtsplibrary.stream.audio.AudioQuality;
 import com.ziv.rtsplibrary.stream.audio.AudioStream;
 import com.ziv.rtsplibrary.gl.SurfaceView;
-import com.ziv.rtsplibrary.stream.video.H263Stream;
-import com.ziv.rtsplibrary.stream.video.H264Stream;
+import com.ziv.rtsplibrary.stream.video.camera.H263Stream;
+import com.ziv.rtsplibrary.stream.video.camera.H264Stream;
 import com.ziv.rtsplibrary.stream.video.VideoQuality;
-import com.ziv.rtsplibrary.stream.video.VideoStream;
+import com.ziv.rtsplibrary.stream.video.screen.ScreenStream;
 
 import java.io.IOException;
 
@@ -49,12 +49,17 @@ public class SessionBuilder {
     /**
      * Can be used with {@link #setVideoEncoder}.
      */
-    public final static int VIDEO_H264 = 1;
+    public final static int VIDEO_H263 = 1;
 
     /**
      * Can be used with {@link #setVideoEncoder}.
      */
-    public final static int VIDEO_H263 = 2;
+    public final static int VIDEO_H264_CAMERA = 2;
+
+    /**
+     * Can be used with {@link #setVideoEncoder}.
+     */
+    public final static int VIDEO_H264_SCREEN = 3;
 
     /**
      * Can be used with {@link #setAudioEncoder}.
@@ -75,7 +80,7 @@ public class SessionBuilder {
     private VideoQuality mVideoQuality = VideoQuality.DEFAULT_VIDEO_QUALITY;
     private AudioQuality mAudioQuality = AudioQuality.DEFAULT_AUDIO_QUALITY;
     private Context mContext;
-    private int mVideoEncoder = VIDEO_H263;
+    private int mVideoEncoder = VIDEO_H264_SCREEN;
     private int mAudioEncoder = AUDIO_AMRNB;
     private int mCamera = CameraInfo.CAMERA_FACING_BACK;
     private int mTimeToLive = 64;
@@ -140,21 +145,27 @@ public class SessionBuilder {
             case VIDEO_H263:
                 session.addVideoTrack(new H263Stream(mCamera));
                 break;
-            case VIDEO_H264:
-                H264Stream stream = new H264Stream(mCamera);
+            case VIDEO_H264_CAMERA:
+                H264Stream cameraStream = new H264Stream(mCamera);
                 if (mContext != null)
-                    stream.setPreferences(PreferenceManager.getDefaultSharedPreferences(mContext));
-                session.addVideoTrack(stream);
+                    cameraStream.setPreferences(PreferenceManager.getDefaultSharedPreferences(mContext));
+                session.addVideoTrack(cameraStream);
+                break;
+            case VIDEO_H264_SCREEN:
+                ScreenStream screenStream = new ScreenStream();
+                if (mContext != null)
+                    screenStream.setPreferences(PreferenceManager.getDefaultSharedPreferences(mContext));
+                session.addVideoTrack(screenStream);
                 break;
         }
 
         if (session.getVideoTrack() != null) {
-            VideoStream video = session.getVideoTrack();
-            video.setFlashState(mFlash);
-            video.setVideoQuality(mVideoQuality);
-            video.setSurfaceView(mSurfaceView);
-            video.setPreviewOrientation(mOrientation);
-            video.setDestinationPorts(5006);
+//            VideoStream video = session.getVideoTrack();
+//            video.setFlashState(mFlash);
+//            video.setVideoQuality(mVideoQuality);
+//            video.setSurfaceView(mSurfaceView);
+//            video.setPreviewOrientation(mOrientation);
+//            video.setDestinationPorts(5006);
         }
 
         if (session.getAudioTrack() != null) {

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.ziv.rtsplibrary.stream.video;
+package com.ziv.rtsplibrary.stream.video.camera;
 
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences.Editor;
@@ -32,11 +32,13 @@ import com.ziv.rtsplibrary.SessionBuilder;
 import com.ziv.rtsplibrary.exceptions.ConfNotSupportedException;
 import com.ziv.rtsplibrary.exceptions.StorageUnavailableException;
 import com.ziv.rtsplibrary.hw.EncoderDebugger;
+import com.ziv.rtsplibrary.stream.video.VideoQuality;
 import com.ziv.rtsplibrary.stream.video.mp4.MP4Config;
 import com.ziv.rtsplibrary.rtsp.rtp.H264Packetizer;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -47,7 +49,7 @@ import java.util.concurrent.TimeUnit;
  * to configure the stream. You can then call {@link #start()} to start the RTP stream.
  * Call {@link #stop()} to stop the stream.
  */
-public class H264Stream extends VideoStream {
+public class H264Stream extends CameraStream {
 
     public final static String TAG = "H264Stream";
 

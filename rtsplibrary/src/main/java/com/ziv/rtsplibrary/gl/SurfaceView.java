@@ -28,7 +28,7 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 
 import com.ziv.rtsplibrary.stream.MediaStream;
-import com.ziv.rtsplibrary.stream.video.VideoStream;
+import com.ziv.rtsplibrary.stream.video.camera.CameraStream;
 
 import java.util.concurrent.Semaphore;
 
@@ -209,7 +209,7 @@ public class SurfaceView extends android.view.SurfaceView implements Runnable, O
 
     /**
      * Requests a certain aspect ratio for the preview. You don't have to call this yourself,
-     * the {@link VideoStream} will do it when it's needed.
+     * the {@link CameraStream} will do it when it's needed.
      */
     public void requestAspectRatio(double aspectRatio) {
         if (mVARM.getAspectRatio() != aspectRatio) {

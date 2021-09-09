@@ -21,6 +21,8 @@ package com.ziv.rtsplibrary.rtsp.rtp;
 import android.annotation.SuppressLint;
 import android.util.Log;
 
+import com.ziv.rtsplibrary.stream.video.screen.ScreenInputStream;
+
 import java.io.IOException;
 
 /**
@@ -104,7 +106,7 @@ public class H264Packetizer extends AbstractPacketizer implements Runnable {
         stats.reset();
         count = 0;
 
-        if (is instanceof MediaCodecInputStream) {
+        if (is instanceof ScreenInputStream || is instanceof MediaCodecInputStream) {
             streamType = 1;
             socket.setCacheSize(0);
         } else {
@@ -152,7 +154,11 @@ public class H264Packetizer extends AbstractPacketizer implements Runnable {
         } else if (streamType == 1) {
             // NAL units are preceeded with 0x00000001
             fill(header, 0, 5);
-            ts = ((MediaCodecInputStream) is).getLastBufferInfo().presentationTimeUs * 1000L;
+            if (is instanceof ScreenInputStream) {
+                ts = ((ScreenInputStream)is).getLastts();
+            } else {
+                ts = ((MediaCodecInputStream) is).getLastBufferInfo().presentationTimeUs * 1000L;
+            }
             //ts += delay;
             naluLength = is.available() + 1;
             if (!(header[0] == 0 && header[1] == 0 && header[2] == 0)) {
@@ -165,7 +171,11 @@ public class H264Packetizer extends AbstractPacketizer implements Runnable {
             // Nothing preceededs the NAL units
             fill(header, 0, 1);
             header[4] = header[0];
-            ts = ((MediaCodecInputStream) is).getLastBufferInfo().presentationTimeUs * 1000L;
+            if (is instanceof ScreenInputStream) {
+                ts = ((ScreenInputStream)is).getLastts();
+            } else {
+                ts = ((MediaCodecInputStream) is).getLastBufferInfo().presentationTimeUs * 1000L;
+            }
             //ts += delay;
             naluLength = is.available() + 1;
         }

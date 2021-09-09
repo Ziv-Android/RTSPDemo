@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package com.ziv.rtsplibrary.stream.video;
+package com.ziv.rtsplibrary.stream.video.camera;
 
 import android.graphics.ImageFormat;
 import android.hardware.Camera.CameraInfo;
@@ -25,6 +25,7 @@ import android.service.textservice.SpellCheckerService.Session;
 
 import com.ziv.rtsplibrary.SessionBuilder;
 import com.ziv.rtsplibrary.rtsp.rtp.H263Packetizer;
+import com.ziv.rtsplibrary.stream.video.VideoQuality;
 
 import java.io.IOException;
 
@@ -35,7 +36,7 @@ import java.io.IOException;
  * to configure the stream. You can then call {@link #start()} to start the RTP stream.
  * Call {@link #stop()} to stop the stream.
  */
-public class H263Stream extends VideoStream {
+public class H263Stream extends CameraStream {
 
     /**
      * Constructs the H.263 stream.
