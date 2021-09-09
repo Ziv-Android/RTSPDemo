@@ -34,17 +34,17 @@ class PermissionActivity : AppCompatActivity(), H264DataCollector {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_permission)
 
-        LogUtil.d(TAG + "onCreate")
+        LogUtil.d("$TAG onCreate")
         mMediaProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         startActivityForResult(mMediaProjectionManager?.createScreenCaptureIntent(), REQUEST_CODE)
         startService(Intent(this, RtspServer::class.java))
 //        bindService(Intent(this, RtspServer::class.java), mRtspServiceConnection, BIND_AUTO_CREATE)
-        LogUtil.d(TAG + "onCreate finish.")
+        LogUtil.d("$TAG onCreate finish.")
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        LogUtil.d(TAG + "requestCode: " + requestCode + " ,resultCode: " + resultCode)
+        LogUtil.d("$TAG requestCode: $requestCode ,resultCode: $resultCode")
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             try {
                 val mediaProjection = mMediaProjectionManager?.getMediaProjection(resultCode, data!!)
@@ -55,7 +55,7 @@ class PermissionActivity : AppCompatActivity(), H264DataCollector {
                 LogUtil.e("${e.message}")
             }
         } else {
-            LogUtil.e("授权错误")
+            LogUtil.e("$TAG 授权错误")
         }
     }
 
@@ -64,7 +64,7 @@ class PermissionActivity : AppCompatActivity(), H264DataCollector {
             mRtspServer = (service as RtspServer.LocalBinder).service
             mRtspServer?.addCallbackListener(mRtspCallbackListener)
             mRtspServer?.start()
-            LogUtil.d(TAG + "onServiceConnected finish.")
+            LogUtil.d("$TAG onServiceConnected finish.")
         }
 
         override fun onServiceDisconnected(name: ComponentName) {}
@@ -93,6 +93,6 @@ class PermissionActivity : AppCompatActivity(), H264DataCollector {
 
     override fun collect(data: H264Data?) {
         DataUtil.getInstance().putData(data)
-        LogUtil.d(TAG + " collect ${data?.data?.size}.")
+        LogUtil.d("$TAG collect ${data?.data?.size}.")
     }
 }

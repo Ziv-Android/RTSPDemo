@@ -66,7 +66,6 @@ public class VideoMediaCodec extends MediaCodecBase {
         this.isRun = isR;
     }
 
-
     @Override
     public void prepare() {
         try {
