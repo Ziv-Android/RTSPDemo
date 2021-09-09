@@ -14,10 +14,12 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
 <!--    android:theme="@style/Theme.AppCompat.Dialog"-->
+<!--    android:theme="@android:style/Theme.Translucent.NoTitleBar"-->
     <application>
         <activity
             android:name="com.ziv.rtsplibrary.utils.ui.PermissionActivity"
             android:launchMode="singleInstance"
+            android:theme="@style/TranslucentStyle"
             android:exported="true" >
             <intent-filter>
                 <action android:name="com.ziv.rtsplibrary.PermissionActivity" />

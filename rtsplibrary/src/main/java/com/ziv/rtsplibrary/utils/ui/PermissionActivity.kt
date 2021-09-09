@@ -36,6 +36,9 @@ class PermissionActivity : AppCompatActivity(), H264DataCollector {
 
         LogUtil.d(TAG + "onCreate")
         mMediaProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+        startActivityForResult(mMediaProjectionManager?.createScreenCaptureIntent(), REQUEST_CODE)
+        startService(Intent(this, RtspServer::class.java))
+//        bindService(Intent(this, RtspServer::class.java), mRtspServiceConnection, BIND_AUTO_CREATE)
         LogUtil.d(TAG + "onCreate finish.")
     }
 
@@ -47,7 +50,7 @@ class PermissionActivity : AppCompatActivity(), H264DataCollector {
                 val mediaProjection = mMediaProjectionManager?.getMediaProjection(resultCode, data!!)
                 mScreenRecord = ScreenRecordThread(this, mediaProjection)
                 mScreenRecord?.start()
-                //finish()
+                finish()
             } catch (e: Exception) {
                 LogUtil.e("${e.message}")
             }
@@ -91,11 +94,5 @@ class PermissionActivity : AppCompatActivity(), H264DataCollector {
     override fun collect(data: H264Data?) {
         DataUtil.getInstance().putData(data)
         LogUtil.d(TAG + " collect ${data?.data?.size}.")
-    }
-
-    fun onStart(view: View) {
-        startActivityForResult(mMediaProjectionManager?.createScreenCaptureIntent(), REQUEST_CODE)
-//        startService(Intent(this, RtspServer::class.java))
-        bindService(Intent(this, RtspServer::class.java), mRtspServiceConnection, BIND_AUTO_CREATE)
     }
 }

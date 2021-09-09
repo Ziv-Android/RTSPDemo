@@ -18,10 +18,16 @@
 
     <SurfaceView
         android:id="@+id/virtual_surface_view"
-        android:layout_width="160dp"
-        android:layout_height="240dp"
+        android:layout_width="320dp"
+        android:layout_height="480dp"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
+<!--        <TextureView-->
+<!--            android:id="@+id/virtual_surface_view"-->
+<!--            android:layout_width="320dp"-->
+<!--            android:layout_height="480dp"-->
+<!--            app:layout_constraintRight_toRightOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent"/>-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>
