@@ -81,7 +81,7 @@ public class SessionBuilder {
     private AudioQuality mAudioQuality = AudioQuality.DEFAULT_AUDIO_QUALITY;
     private Context mContext;
     private int mVideoEncoder = VIDEO_H264_SCREEN;
-    private int mAudioEncoder = AUDIO_AMRNB;
+    private int mAudioEncoder = AUDIO_NONE;
     private int mCamera = CameraInfo.CAMERA_FACING_BACK;
     private int mTimeToLive = 64;
     private int mOrientation = 0;

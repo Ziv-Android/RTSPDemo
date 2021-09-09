@@ -1,22 +1,26 @@
 package com.ziv.rtsp
 
 import android.graphics.ImageFormat
+import android.graphics.SurfaceTexture
 import android.hardware.Camera
 import android.hardware.Camera.CameraInfo
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.Surface
-import android.view.SurfaceHolder
-import android.view.SurfaceView
-import android.view.WindowManager
 import android.widget.TextView
 
 import com.ziv.rtsplibrary.RTSPLibrary
 import java.lang.Exception
+import android.util.DisplayMetrics
+import android.view.*
+
 
 class MainActivity : AppCompatActivity() {
-    private var mSurfaceView: SurfaceView? = null
+    companion object {
+        const val TAG = "MainActivity"
+    }
+
+    private var mSurfaceView: View? = null
     private var mIpView: TextView? = null
 
     private var mCamera: Camera? = null
@@ -32,51 +36,77 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         mSurfaceView = findViewById(R.id.virtual_surface_view)
-//        mSurfaceView?.scaleX = -1F
-        mIpView = findViewById(R.id.txt_address)
 
         startCamera()
 
         val rtsp = RTSPLibrary.getInstance()
+        mIpView = findViewById(R.id.txt_address)
         mIpView?.text = rtsp.getRtspAddress(this)
 
         rtsp.start(this)
     }
 
     private fun startCamera() {
-        mSurfaceView?.holder?.addCallback(object : SurfaceHolder.Callback {
-            override fun surfaceCreated(holder: SurfaceHolder) {
-                if (null == mCamera) {
-                    if (isSupport(mCameraId)) {
-                        try {
-                            mCamera = Camera.open(mCameraId)
-                            initParameters(mCamera)
+        if (mSurfaceView is TextureView) {
+            val dm = DisplayMetrics()
+            windowManager.defaultDisplay.getMetrics(dm)
+            mWidth = dm.widthPixels
+            mHeight = dm.heightPixels
 
-                            //preview
-                            if (null != mCamera) {
-                                mCamera!!.setPreviewCallback { data, camera ->
-                                    Log.d(
-                                        "onPreviewFrame",
-                                        "camera: $camera, data: ${data?.size}"
-                                    )
-                                }
-                            }
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                    }
-                }
-                startPreview()
-            }
+            Log.d(TAG, "##### init screen width: $mWidth, height: $mHeight")
 
-            override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
-                mCamera?.setPreviewDisplay(holder)
-            }
+            val view = mSurfaceView as TextureView
+            view.surfaceTextureListener = textureViewSurfaceTextureListener
+            // 只有TextureView支持设置镜像
+            view.scaleX = -1F
+        } else if (mSurfaceView is SurfaceView) {
+            val view = mSurfaceView as SurfaceView
+            view.holder?.addCallback(surfaceHolderCallback)
+        }
+    }
 
-            override fun surfaceDestroyed(holder: SurfaceHolder) {
-                releaseCamera()
-            }
-        })
+    private val textureViewSurfaceTextureListener = object : TextureView.SurfaceTextureListener {
+        override fun onSurfaceTextureAvailable(
+            surfaceTexture: SurfaceTexture,
+            width: Int,
+            height: Int
+        ) {
+            startPreview()
+        }
+
+        override fun onSurfaceTextureSizeChanged(
+            surfaceTexture: SurfaceTexture,
+            width: Int,
+            height: Int
+        ) {
+            Log.d(TAG, "onSurfaceTextureSizeChanged: $width $height");
+        }
+
+        override fun onSurfaceTextureDestroyed(surfaceTexture: SurfaceTexture): Boolean {
+            releaseCamera()
+            return false
+        }
+
+        override fun onSurfaceTextureUpdated(surfaceTexture: SurfaceTexture) {}
+    }
+
+    private val surfaceHolderCallback = object : SurfaceHolder.Callback {
+        override fun surfaceCreated(holder: SurfaceHolder) {
+            startPreview()
+        }
+
+        override fun surfaceChanged(
+            holder: SurfaceHolder,
+            format: Int,
+            width: Int,
+            height: Int
+        ) {
+            Log.d(TAG, "surfaceChanged: $width $height");
+        }
+
+        override fun surfaceDestroyed(holder: SurfaceHolder) {
+            releaseCamera()
+        }
     }
 
     private fun releaseCamera() {
@@ -91,10 +121,38 @@ class MainActivity : AppCompatActivity() {
 
     private fun startPreview() {
         try {
+            if (mCamera == null) {
+                createCamera()
+            }
+            if (mSurfaceView is TextureView) {
+                val view = mSurfaceView as TextureView
+                mCamera?.setPreviewTexture(view.surfaceTexture)
+            } else if (mSurfaceView is SurfaceView){
+                val view = mSurfaceView as SurfaceView
+                mCamera?.setPreviewDisplay(view.holder)
+            }
             setCameraDisplayOrientation()
             mCamera?.startPreview()
 
             startFaceDetect()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun createCamera() {
+        try {
+            if (isSupport(mCameraId)) {
+                mCamera = Camera.open(mCameraId)
+                initParameters(mCamera)
+
+                //preview
+                if (null != mCamera) {
+                    mCamera!!.setPreviewCallback { data, camera ->
+//                        Log.d(TAG, "setPreviewCallback camera: $camera, data: ${data?.size}")
+                    }
+                }
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -123,7 +181,7 @@ class MainActivity : AppCompatActivity() {
 
         Log.d("DEBUG", "##### setCameraDisplayOrientation degrees: $degrees")
 
-        degrees = when(mCameraId){
+        degrees = when (mCameraId) {
             Camera.CameraInfo.CAMERA_FACING_FRONT -> 270
             Camera.CameraInfo.CAMERA_FACING_BACK -> 90
             else -> 0
@@ -139,8 +197,11 @@ class MainActivity : AppCompatActivity() {
             result = (cameraInfo.orientation - degrees + 360) % 360
         }
 
-        Log.d("DEBUG", "##### setCameraDisplayOrientation rotation: ${
-                rotation}, cameraInfo.orientation: ${cameraInfo.orientation}, result: $result")
+        Log.d(
+            "DEBUG", "##### setCameraDisplayOrientation rotation: ${
+                rotation
+            }, cameraInfo.orientation: ${cameraInfo.orientation}, result: $result"
+        )
 
         mOrientation = result
         //相机预览方向
@@ -162,10 +223,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun setPreviewSize() {
         val supportSizes = mParameters?.getSupportedPreviewSizes();
-        var biggestSize: Camera.Size?  = null
-        var fitSize: Camera.Size?  = null
-        var targetSize: Camera.Size?  = null
-        var targetSiz2: Camera.Size?  = null
+        var biggestSize: Camera.Size? = null
+        var fitSize: Camera.Size? = null
+        var targetSize: Camera.Size? = null
+        var targetSiz2: Camera.Size? = null
 
         if (null != supportSizes) {
             for (i in 0 until supportSizes.size) {
@@ -212,7 +273,10 @@ class MainActivity : AppCompatActivity() {
                 fitSize = biggestSize;
             }
 
-            Log.d("DEBUG", "##### fitSize width: " + fitSize?.width + ", height: " + fitSize?.height);
+            Log.d(
+                "DEBUG",
+                "##### fitSize width: " + fitSize?.width + ", height: " + fitSize?.height
+            );
             mParameters?.setPreviewSize(fitSize?.width ?: mWidth, fitSize?.height ?: mHeight);
         }
     }
