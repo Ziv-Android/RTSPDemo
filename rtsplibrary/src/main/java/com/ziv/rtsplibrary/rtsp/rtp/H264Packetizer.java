@@ -22,6 +22,7 @@ import android.annotation.SuppressLint;
 import android.util.Log;
 
 import com.ziv.rtsplibrary.stream.video.screen.ScreenInputStream;
+import com.ziv.rtsplibrary.utils.LogUtil;
 
 import java.io.IOException;
 
@@ -137,6 +138,10 @@ public class H264Packetizer extends AbstractPacketizer implements Runnable {
 
     }
 
+
+    private long lastTime = 0L;
+    private int fps = 0;
+
     /**
      * Reads a NAL unit in the FIFO and sends it.
      * If it is too big, we split it in FU-A units (RFC 3984).
@@ -144,7 +149,14 @@ public class H264Packetizer extends AbstractPacketizer implements Runnable {
     @SuppressLint("NewApi")
     private void send() throws IOException, InterruptedException {
         int sum = 1, len = 0, type;
-
+        long currentTime = System.currentTimeMillis();
+        if (currentTime > 1000 + lastTime) {
+            LogUtil.d("H264", "send. " + fps);
+            fps = 0;
+            lastTime = currentTime;
+        } else {
+            fps++;
+        }
         if (streamType == 0) {
             // NAL units are preceeded by their length, we parse the length
             fill(header, 0, 5);
@@ -195,6 +207,7 @@ public class H264Packetizer extends AbstractPacketizer implements Runnable {
             }
         }
 
+        // 如果是type为5的关键帧，则把sps和pps放置到图像数据前面
         // We send two packets containing NALU type 7 (SPS) and 8 (PPS)
         // Those should allow the H264 stream to be decoded even if no SDP was sent to the decoder.
         if (type == 5 && sps != null && pps != null) {

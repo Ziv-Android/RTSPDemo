@@ -33,6 +33,10 @@ public class DataUtil {
         return h264Queue;
     }
 
+    public H264Data getData() {
+        return h264Queue.getLast();
+    }
+
     public void putData(H264Data data) {
         if (h264Queue == null) {
             h264Queue = new LinkedBlockingDeque<>(queuesize);

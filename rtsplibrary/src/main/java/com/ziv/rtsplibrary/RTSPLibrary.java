@@ -3,6 +3,7 @@ package com.ziv.rtsplibrary;
 import android.content.Context;
 import android.content.Intent;
 
+import com.ziv.rtsplibrary.config.Constant;
 import com.ziv.rtsplibrary.rtsp.RtspServer;
 import com.ziv.rtsplibrary.utils.NetworkUtil;
 import com.ziv.rtsplibrary.utils.RunState;
@@ -37,7 +38,10 @@ public class RTSPLibrary {
 
     public String getRtspAddress(Context context) {
         Context applicationContext = context.getApplicationContext();
-        return NetworkUtil.displayIpAddress(applicationContext);
+        StringBuilder ipaddress = new StringBuilder();
+        String ip = NetworkUtil.displayIpAddress(applicationContext);
+        ipaddress.append("rtsp://").append(ip).append(":").append(Constant.DEFAULT_RTSP_PORT);
+        return ipaddress.toString();
     }
 
     public void release(Context context) {

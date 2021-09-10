@@ -2,6 +2,7 @@ package com.ziv.rtsplibrary.stream.video.screen;
 
 import com.ziv.rtsplibrary.stream.video.screen.media.DataUtil;
 import com.ziv.rtsplibrary.stream.video.screen.media.H264Data;
+import com.ziv.rtsplibrary.utils.LogUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +19,7 @@ public class ScreenInputStream extends InputStream {
         int min = 0;
 
         if (mBuffer == null) {
-            data = DataUtil.getInstance().getH264Queue().poll();
+            data = DataUtil.getInstance().getData();
             if (data == null) return 0;
             ts = data.ts;
             mBuffer = ByteBuffer.wrap(data.data);

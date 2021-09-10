@@ -91,8 +91,18 @@ class PermissionActivity : AppCompatActivity(), H264DataCollector {
         }
     }
 
+    private var lastTime = 0L
+    private var fps = 0
     override fun collect(data: H264Data?) {
+        val currentTime = System.currentTimeMillis()
+        if (currentTime > 1000 + lastTime) {
+            LogUtil.d("$TAG fps $fps.")
+            fps = 0
+            lastTime = currentTime
+        } else {
+            fps++
+        }
         DataUtil.getInstance().putData(data)
-        LogUtil.d("$TAG collect ${data?.data?.size}.")
+        // LogUtil.d("$TAG collect ${data?.data?.size}.")
     }
 }

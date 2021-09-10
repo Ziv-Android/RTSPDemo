@@ -27,6 +27,7 @@ import com.ziv.rtsplibrary.stream.audio.AMRNBStream;
 import com.ziv.rtsplibrary.stream.audio.AudioQuality;
 import com.ziv.rtsplibrary.stream.audio.AudioStream;
 import com.ziv.rtsplibrary.gl.SurfaceView;
+import com.ziv.rtsplibrary.stream.video.VideoStream;
 import com.ziv.rtsplibrary.stream.video.camera.H263Stream;
 import com.ziv.rtsplibrary.stream.video.camera.H264Stream;
 import com.ziv.rtsplibrary.stream.video.VideoQuality;
@@ -160,12 +161,12 @@ public class SessionBuilder {
         }
 
         if (session.getVideoTrack() != null) {
-//            VideoStream video = session.getVideoTrack();
+            VideoStream video = (VideoStream) session.getVideoTrack();
 //            video.setFlashState(mFlash);
 //            video.setVideoQuality(mVideoQuality);
 //            video.setSurfaceView(mSurfaceView);
 //            video.setPreviewOrientation(mOrientation);
-//            video.setDestinationPorts(5006);
+            video.setDestinationPorts(5006);
         }
 
         if (session.getAudioTrack() != null) {

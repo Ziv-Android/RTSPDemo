@@ -22,6 +22,7 @@ class MainActivity : AppCompatActivity() {
 
     private var mSurfaceView: View? = null
     private var mIpView: TextView? = null
+    private var mFpsView: TextView? = null
 
     private var mCamera: Camera? = null
     private var mParameters: Camera.Parameters? = null
@@ -42,6 +43,8 @@ class MainActivity : AppCompatActivity() {
         val rtsp = RTSPLibrary.getInstance()
         mIpView = findViewById(R.id.txt_address)
         mIpView?.text = rtsp.getRtspAddress(this)
+
+        mFpsView = findViewById(R.id.txt_fps)
 
         rtsp.start(this)
     }
